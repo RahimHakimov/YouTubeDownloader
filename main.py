@@ -1,7 +1,7 @@
+import re
+import requests
 import os
 from pytube import YouTube
-import requests
-import re
 
 
 def folder_name(url):
@@ -54,7 +54,6 @@ inputted_url = input("WELCOME to YouTube - playlist DOWNLOADER\n author: @RahimH
 os.chdir(os.getcwd())
 
 new_folder = folder_name(inputted_url)
-print(new_folder[:8])
 
 try:
     os.mkdir(new_folder[:8])
@@ -86,6 +85,15 @@ for current_link in videos_links:
 
     if main_title not in downloaded_videos:
         vid = current_youtube_video.streams.filter(progressive=True, file_extension='mp4').first()
+
+        if os.path.exists(str(os.getcwd()) + "/" + str(vid.default_filename)):
+            print("Exists. . . " + vid.default_filename)
+
+            s = input("Enter 1 to delete exists file and download new\nEnter 0 to keep this file and continue\n")
+
+            if s == "0":
+                continue
+
         print("Downloading. . . " + vid.default_filename)
         vid.download(os.getcwd())
         print("Video Downloaded!")
