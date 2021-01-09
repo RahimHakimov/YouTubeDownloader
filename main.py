@@ -4,6 +4,10 @@ import os
 from pytube import YouTube
 
 
+def progress_function(self, stream, chunk, file_handle, bytes_remaining):
+    print(round((1 - bytes_remaining / video.filesize) * 100, 3), '% done...')
+
+
 def folder_name(url):
     try:
         requests.get(url)
@@ -75,7 +79,7 @@ videos_links = link_generator(inputted_url)
 
 for current_link in videos_links:
     try:
-        current_youtube_video = YouTube(current_link)
+        current_youtube_video = YouTube(current_link, on_progress_callback=progress_function)
         main_title = current_youtube_video.title
         main_title = main_title + ".mp4"
         main_title = main_title.replace('|', '')
@@ -84,18 +88,18 @@ for current_link in videos_links:
         break
 
     if main_title not in downloaded_videos:
-        vid = current_youtube_video.streams.filter(progressive=True, file_extension='mp4').first()
+        video = current_youtube_video.streams.filter(progressive=True, file_extension='mp4').first()
 
-        if os.path.exists(str(os.getcwd()) + "/" + str(vid.default_filename)):
-            print("Exists. . . " + vid.default_filename)
+        if os.path.exists(str(os.getcwd()) + "/" + str(video.default_filename)):
+            print("Exists. . . " + video.default_filename)
 
             s = input("Enter 1 to delete exists file and download new\nEnter 0 to keep this file and continue\n")
 
             if s == "0":
                 continue
 
-        print("Downloading. . . " + vid.default_filename)
-        vid.download(os.getcwd())
+        print("Downloading. . . " + video.default_filename)
+        video.download(os.getcwd())
         print("Video Downloaded!")
 
 print(f"Downloading finished!\nSaved at: {os.getcwd()}")
