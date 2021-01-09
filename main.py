@@ -1,11 +1,17 @@
 import re
+import sys
 import requests
 import os
 from pytube import YouTube
 
 
-def progress_function(self, stream, chunk, file_handle, bytes_remaining):
-    print(round((1 - bytes_remaining / video.filesize) * 100, 3), '% done...')
+def progress_function(chunk=None, file_handle=None, bytes_remaining=None):
+    current = ((video.filesize - bytes_remaining) / video.filesize)
+    percent = "{0:.1f}".format(current * 100)
+    progress = int(50 * current)
+    status = '█' * progress + '-' * (50 - progress)
+    sys.stdout.write(' ↳ |{bar}| {percent}%\r'.format(bar=status, percent=percent))
+    sys.stdout.flush()
 
 
 def folder_name(url):
@@ -53,7 +59,7 @@ def link_generator(url):
     return videos_links
 
 
-inputted_url = input("WELCOME to YouTube - playlist DOWNLOADER\n author: @RahimHakimov\n" + "Enter playlist url: ")
+inputted_url = input("WELCOME to YouTube - playlist DOWNLOADER\nauthor: @RahimHakimov\n" + "Enter playlist url: ")
 
 os.chdir(os.getcwd())
 
