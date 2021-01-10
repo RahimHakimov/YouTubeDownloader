@@ -25,7 +25,6 @@ def folder_name(url):
         cPL = url[url.rfind('=') + 1:]
 
     else:
-        print("Incorrect Playlist...:(")
         return 0
 
     return cPL
@@ -43,8 +42,7 @@ def link_generator(url):
     if "list=" in url:
         cPL = url[url.rfind('=') + 1:]
     else:
-        print('Incorrect Playlist.')
-        return 0
+        return [url]
 
     tmp_material = re.compile(r"watch\?v=\S+?list=" + cPL)
     material = re.findall(tmp_material, plain_text)
@@ -59,7 +57,8 @@ def link_generator(url):
     return videos_links
 
 
-inputted_url = input("WELCOME to YouTube - playlist DOWNLOADER\nauthor: @RahimHakimov\n" + "Enter playlist url: ")
+inputted_url = input(
+    "WELCOME to YouTube - playlist DOWNLOADER\nauthor: @RahimHakimov\n" + "Enter YouTube video or playlist url: ")
 
 os.chdir(os.getcwd())
 
@@ -70,7 +69,10 @@ try:
 except:
     temp = 0
 
-os.chdir(new_folder[:8])
+try:
+    os.chdir(new_folder[:8])
+except:
+    temp = 0
 
 downloaded_videos = []
 
@@ -94,7 +96,8 @@ for current_link in videos_links:
         break
 
     if main_title not in downloaded_videos:
-        video = current_youtube_video.streams.filter(progressive=True, file_extension='mp4').first()
+        video = current_youtube_video.streams.filter(progressive=True, file_extension='mp4').order_by(
+            'resolution').desc().first()
 
         if os.path.exists(str(os.getcwd()) + "/" + str(video.default_filename)):
             print("Exists. . . " + video.default_filename)
@@ -103,8 +106,10 @@ for current_link in videos_links:
 
             if s == "0":
                 continue
+            elif s == "1":
+                os.remove(str(os.getcwd()) + "/" + str(video.default_filename))
 
-        print("Downloading. . . " + video.default_filename)
+        print("Downloading. . . " + video.default_filename + " " + video.resolution)
         video.download(os.getcwd())
         print("Video Downloaded!")
 
