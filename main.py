@@ -2,7 +2,7 @@ import re
 import sys
 import requests
 import os
-from pytube import YouTube
+from pytube import YouTube, Playlist
 
 
 def progress_function(chunk=None, file_handle=None, bytes_remaining=None):
@@ -22,39 +22,22 @@ def folder_name(url):
         return 0
 
     if 'list=' in url:
-        cPL = url[url.rfind('=') + 1:]
+        return Playlist(url).title
 
-    else:
-        return 0
-
-    return cPL
+    return 0
 
 
 def link_generator(url):
     try:
-        res = requests.get(url)
+        requests.get(url)
     except:
         print("No internet connection... :(")
         return 0
 
-    plain_text = res.text
-
     if "list=" in url:
-        cPL = url[url.rfind('=') + 1:]
+        return Playlist(url).videos
     else:
-        return [url]
-
-    tmp_material = re.compile(r"watch\?v=\S+?list=" + cPL)
-    material = re.findall(tmp_material, plain_text)
-
-    videos_links = []
-
-    for cur in material:
-        current_link = "https://youtube.com/" + cur.replace("&amp;", '&')
-        if current_link not in videos_links:
-            videos_links.append(current_link)
-
-    return videos_links
+        return [YouTube(url, on_progress_callback=progress_function())]
 
 
 inputted_url = input(
@@ -65,12 +48,12 @@ os.chdir(os.getcwd())
 new_folder = folder_name(inputted_url)
 
 try:
-    os.mkdir(new_folder[:8])
+    os.mkdir(new_folder)
 except:
     temp = 0
 
 try:
-    os.chdir(new_folder[:8])
+    os.chdir(new_folder)
 except:
     temp = 0
 
@@ -85,10 +68,10 @@ for path_to_folder, s, files in os.walk('.', topdown=False):
 
 videos_links = link_generator(inputted_url)
 
-for current_link in videos_links:
+for current_video in videos_links:
     try:
-        current_youtube_video = YouTube(current_link, on_progress_callback=progress_function)
-        main_title = current_youtube_video.title
+        current_video.register_on_progress_callback(progress_function)
+        main_title = current_video.title
         main_title = main_title + ".mp4"
         main_title = main_title.replace('|', '')
     except:
@@ -96,7 +79,7 @@ for current_link in videos_links:
         break
 
     if main_title not in downloaded_videos:
-        video = current_youtube_video.streams.filter(progressive=True, file_extension='mp4').order_by(
+        video = current_video.streams.filter(progressive=True, file_extension='mp4').order_by(
             'resolution').desc().first()
 
         if os.path.exists(str(os.getcwd()) + "/" + str(video.default_filename)):
