@@ -8,11 +8,10 @@ git clone https://github.com/RahimHakimov/YouTubeDownloader
 ```
 After cloning repository, you need to install some python-libraries.
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install pytube and requests.
+Use the package manager [pip](https://pip.pypa.io/en/stable/) to install all requirements.
 ```bash
-pip install pytube
-
-pip install requests
+pip install -r requirements.txt
+pip freeze > requirements.txt
 ```
 ## Usage
 ```bash
